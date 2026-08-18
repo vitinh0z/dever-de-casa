@@ -11,3 +11,11 @@ Além do perfil individual, o projeto acompanha o que está em tramitação nas 
 O objetivo não é fazer juízo de valor sobre nenhum parlamentar, partido ou projeto — é só organizar dado público que já existe, mas que hoje exige tempo e conhecimento técnico pra ser acessado. A meta final é que qualquer pessoa consiga abrir o site, procurar pelo nome do seu deputado ou senador, e entender rapidamente o que essa pessoa andou fazendo com o mandato que recebeu.
 
 Os dados vêm das APIs de dados abertos da Câmara dos Deputados e do Senado Federal, mantidas pelas próprias casas legislativas. O escopo inicial é a Câmara dos Deputados, por ter uma API mais completa e unificada; o Senado entra numa fase posterior, já que segue um modelo de dados próprio e exige tratamento separado.
+
+## Contribuindo
+
+Quer ajudar? O fluxo de contribuição está descrito em [CONTRIBUTING.md](CONTRIBUTING.md), e o trabalho em andamento está organizado nas [issues do repositório](https://github.com/vitinh0z/dever-de-casa/issues).
+
+## Licença
+
+Distribuído sob a licença [MIT](LICENSE).
