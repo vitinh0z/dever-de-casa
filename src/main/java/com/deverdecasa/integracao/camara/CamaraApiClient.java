@@ -76,7 +76,7 @@ public class CamaraApiClient {
     }
 
     public List<AutorApiResponse> listarAutoresDaProposicao(String idProposicao) {
-        return paginar("/proposicoes/" + idProposicao + "/autores", "",
+        return buscarTudo("/proposicoes/" + idProposicao + "/autores",
                 new ParameterizedTypeReference<Envelope<AutorApiResponse>>() {
                 });
     }
@@ -92,9 +92,12 @@ public class CamaraApiClient {
     /**
      * Votos individuais de uma votação. Lista vazia quer dizer votação simbólica: a casa
      * deliberou sem apurar voto a voto, e não que os dados estejam faltando.
+     *
+     * <p>Vai sem paginação porque a Câmara recusa {@code pagina} e {@code itens} nos
+     * sub-recursos de votação e de autoria, respondendo 400. Eles devolvem a lista completa.
      */
     public List<VotoApiResponse> listarVotos(String idVotacao) {
-        return paginar("/votacoes/" + idVotacao + "/votos", "",
+        return buscarTudo("/votacoes/" + idVotacao + "/votos",
                 new ParameterizedTypeReference<Envelope<VotoApiResponse>>() {
                 });
     }
@@ -123,6 +126,17 @@ public class CamaraApiClient {
             }
         }
         return acumulado;
+    }
+
+    /** Sub-recursos que não aceitam paginação e já devolvem a coleção inteira. */
+    private <T> List<T> buscarTudo(String caminho, ParameterizedTypeReference<Envelope<T>> tipo) {
+        try {
+            Envelope<T> envelope = restClient.get().uri(caminho).retrieve().body(tipo);
+            return envelope == null ? List.of() : envelope.dadosOuVazio();
+        } catch (RestClientException e) {
+            log.warn("Falha ao consultar {} da Câmara: {}", caminho, e.getMessage());
+            return List.of();
+        }
     }
 
     private <T> Optional<T> buscarUnico(String caminho, ParameterizedTypeReference<EnvelopeUnico<T>> tipo) {

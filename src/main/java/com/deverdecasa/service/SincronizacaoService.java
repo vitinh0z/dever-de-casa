@@ -16,10 +16,14 @@ public class SincronizacaoService {
     private static final Logger log = LoggerFactory.getLogger(SincronizacaoService.class);
 
     private final SincronizacaoCamaraService camara;
+    private final SincronizacaoSenadoService senado;
     private final SincronizacaoProperties properties;
 
-    public SincronizacaoService(SincronizacaoCamaraService camara, SincronizacaoProperties properties) {
+    public SincronizacaoService(SincronizacaoCamaraService camara,
+                                SincronizacaoSenadoService senado,
+                                SincronizacaoProperties properties) {
         this.camara = camara;
+        this.senado = senado;
         this.properties = properties;
     }
 
@@ -29,7 +33,8 @@ public class SincronizacaoService {
             return ResultadoSincronizacao.vazio();
         }
         long inicio = System.currentTimeMillis();
-        ResultadoSincronizacao resultado = executar("Câmara", camara::sincronizar);
+        ResultadoSincronizacao resultado = executar("Câmara", camara::sincronizar)
+                .mais(executar("Senado", senado::sincronizar));
         log.info("Sincronização concluída em {}s: {}", (System.currentTimeMillis() - inicio) / 1000, resultado);
         return resultado;
     }
