@@ -1,10 +1,12 @@
+# Padrões de desenvolvimento. Produção sobrescreve o que for sensível em
+# application-prod.yml; ajustes pessoais vão em application-local.yml (fora do git).
 spring:
   application:
     name: dever-de-casa
   datasource:
-    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/deverdecasa
-    username: deverdecasa
-    password: deverdecasa
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:deverdecasa}
+    username: ${POSTGRES_USER:deverdecasa}
+    password: ${POSTGRES_PASSWORD:deverdecasa}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -18,7 +20,7 @@ spring:
       spec: maximumSize=1000,expireAfterWrite=1h
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 management:
   endpoints:

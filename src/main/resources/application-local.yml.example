@@ -1,0 +1,12 @@
+# Copie para application-local.yml (ignorado pelo git) e rode com
+# SPRING_PROFILES_ACTIVE=local para sobrescrever o que quiser na sua máquina.
+logging:
+  level:
+    com.deverdecasa: DEBUG
+    org.hibernate.SQL: DEBUG
+
+# Sincronização com as APIs externas desligada por padrão no dia a dia:
+# ligue quando estiver trabalhando na integração.
+deverdecasa:
+  sincronizacao:
+    habilitada: false
