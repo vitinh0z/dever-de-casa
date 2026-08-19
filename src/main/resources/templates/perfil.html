@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: pagina(${perfil.nome()}, ~{::conteudo})}">
+<body>
+<div th:fragment="conteudo" th:remove="tag">
+
+    <div class="perfil-topo">
+        <img class="retrato" th:src="${perfil.urlFoto()}" th:alt="|Retrato de ${perfil.nome()}|"
+             th:if="${perfil.urlFoto() != null}" width="88" height="88">
+        <div>
+            <h1 th:text="${perfil.nome()}">Nome</h1>
+            <p class="chamada">
+                <span th:text="${perfil.tratamento()}">Deputado(a)</span>
+                <span th:if="${perfil.siglaPartido() != null}" th:text="|· ${perfil.siglaPartido()}|">· PARTIDO</span>
+                <span th:if="${perfil.siglaUf() != null}" th:text="|· ${perfil.siglaUf()}|">· UF</span>
+                <span th:if="${perfil.situacao() != null}" th:text="|· ${perfil.situacao()}|">· Exercício</span>
+            </p>
+            <p class="chamada" th:if="${perfil.nomeCivil() != null}">
+                Nome civil: <span th:text="${perfil.nomeCivil()}">Nome civil</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="numeros">
+        <div class="cartao numero">
+            <strong th:text="${perfil.proposicoes().size()}">0</strong>
+            <span>projetos apresentados</span>
+        </div>
+        <div class="cartao numero">
+            <strong th:text="${perfil.qtdProposicoesAprovadas()}">0</strong>
+            <span>já aprovados</span>
+        </div>
+        <div class="cartao numero">
+            <strong th:text="${perfil.votos().size()}">0</strong>
+            <span>votos registrados</span>
+        </div>
+    </div>
+
+    <h2>Projetos que apresentou</h2>
+
+    <div class="vazio" th:if="${perfil.proposicoes().isEmpty()}">
+        Nenhum projeto sincronizado até agora para este parlamentar.
+    </div>
+
+    <ul class="itens">
+        <li class="item" th:each="p : ${perfil.proposicoes()}">
+            <div class="item-titulo">
+                <span th:text="${p.identificacao()}">PL 0000/0000</span>
+                <span class="etiqueta etiqueta-aprovada"
+                      th:if="${p.aprovada() != null and p.aprovada()}">Aprovado</span>
+                <span class="etiqueta etiqueta-nao-aprovada"
+                      th:if="${p.aprovada() != null and !p.aprovada()}">Não aprovado</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${p.aprovada() == null}">Situação não informada</span>
+            </div>
+            <p class="item-ementa" th:text="${p.ementa()}">Ementa</p>
+            <p class="item-meta">
+                <span th:if="${p.dataApresentacao() != null}"
+                      th:text="|Apresentado em ${#temporals.format(p.dataApresentacao(), 'dd/MM/yyyy')}|">
+                    Apresentado em
+                </span>
+                <span th:if="${p.situacao() != null}" th:text="| · ${p.situacao()}|"> · Situação</span>
+                <a th:if="${p.urlInteiroTeor() != null}" th:href="${p.urlInteiroTeor()}"
+                   rel="noopener"> · Texto integral</a>
+            </p>
+        </li>
+    </ul>
+
+    <h2>Como votou</h2>
+
+    <!--
+      Votação simbólica não registra voto individual. Sem dizer isso, um histórico vazio pareceria
+      omissão do parlamentar, quando na verdade a casa decidiu sem apurar voto a voto.
+    -->
+    <div class="aviso" th:if="${perfil.votos().isEmpty()}">
+        <strong>Não há voto nominal registrado para este parlamentar.</strong>
+        Boa parte das deliberações é simbólica: a casa aprova por acordo e não apura o voto de cada
+        um. Nesses casos não existe registro individual a ser mostrado — o que é diferente de o
+        parlamentar não ter participado.
+    </div>
+
+    <ul class="itens" th:if="${!perfil.votos().isEmpty()}">
+        <li class="item"
+            th:each="v : ${perfil.votos()}"
+            th:classappend="${v.tipoVoto().name() == 'SIM'} ? 'voto-sim' :
+                            (${v.tipoVoto().name() == 'NAO'} ? 'voto-nao' : 'voto-outro')">
+            <div class="item-titulo">
+                <span th:if="${v.identificacaoProposicao() != null}"
+                      th:text="${v.identificacaoProposicao()}">PL 0000/0000</span>
+                <span class="etiqueta etiqueta-aprovada" th:if="${v.tipoVoto().name() == 'SIM'}">Votou sim</span>
+                <span class="etiqueta etiqueta-nao-aprovada" th:if="${v.tipoVoto().name() == 'NAO'}">Votou não</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'ABSTENCAO'}">Absteve-se</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'AUSENTE'}">Ausente</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'OBSTRUCAO'}">Obstrução</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'NAO_REGISTROU'}">Presente, sem registrar voto</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'PRESIDENTE'}">Presidiu a sessão</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'SECRETO'}">Votação secreta</span>
+                <span class="etiqueta etiqueta-neutra"
+                      th:if="${v.tipoVoto().name() == 'OUTRO'}"
+                      th:text="${v.descricaoOrigem()}">Registro da casa</span>
+            </div>
+            <p class="item-ementa" th:text="${v.descricaoVotacao()}">Descrição da votação</p>
+            <p class="item-meta">
+                <span th:if="${v.data() != null}"
+                      th:text="${#temporals.format(v.data(), 'dd/MM/yyyy')}">00/00/0000</span>
+                <span th:if="${v.siglaOrgao() != null}" th:text="| · ${v.siglaOrgao()}|"> · Órgão</span>
+                <span th:if="${v.secreta()}"> · sessão secreta, o sentido do voto não é público</span>
+            </p>
+        </li>
+    </ul>
+
+    <div th:if="${!perfil.votacoesSimbolicas().isEmpty()}">
+        <h2>Decidido sem voto nominal</h2>
+        <p class="chamada">
+            Estas votações trataram de propostas deste parlamentar, mas foram simbólicas: a casa não
+            registrou o voto de cada um.
+        </p>
+        <ul class="itens">
+            <li class="item simbolica" th:each="s : ${perfil.votacoesSimbolicas()}">
+                <div class="item-titulo">
+                    <span th:if="${s.identificacaoProposicao() != null}"
+                          th:text="${s.identificacaoProposicao()}">PL 0000/0000</span>
+                    <span class="etiqueta etiqueta-neutra">Votação simbólica</span>
+                    <span class="etiqueta etiqueta-aprovada"
+                          th:if="${s.aprovada() != null and s.aprovada()}">Aprovada</span>
+                </div>
+                <p class="item-ementa" th:text="${s.descricaoVotacao()}">Descrição</p>
+                <p class="item-meta" th:if="${s.data() != null}"
+                   th:text="${#temporals.format(s.data(), 'dd/MM/yyyy')}">00/00/0000</p>
+            </li>
+        </ul>
+    </div>
+
+    <p style="margin-top:2rem">
+        <a th:href="@{/deputados}">← Voltar para a busca</a>
+    </p>
+
+</div>
+</body>
+</html>
