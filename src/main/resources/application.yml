@@ -38,6 +38,11 @@ deverdecasa:
     timeout: 30s
     # Teto de páginas por consulta: segura o tamanho de uma execução contra uma API pública.
     max-paginas: 20
+  senado:
+    base-url: https://legis.senado.leg.br/dadosabertos
+    timeout: 45s
+    # Janela de anos consultada em matérias e votações.
+    anos-de-historico: 2
   sincronizacao:
     habilitada: true
     # Madrugada, quando as casas já publicaram o movimento do dia anterior.
