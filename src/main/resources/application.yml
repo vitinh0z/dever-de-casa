@@ -31,3 +31,10 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+deverdecasa:
+  camara:
+    base-url: https://dadosabertos.camara.leg.br/api/v2
+    timeout: 30s
+    # Teto de páginas por consulta: segura o tamanho de uma execução contra uma API pública.
+    max-paginas: 20
