@@ -9,7 +9,7 @@
         Procure pelo nome do seu deputado ou senador e veja quantos projetos ele apresentou.
     </p>
 
-    <form class="busca cartao" method="get" th:action="@{/deputados}">
+    <form class="busca cartao" method="get" th:action="@{/parlamentares}">
         <div>
             <label for="nome">Nome do parlamentar</label>
             <input type="search" id="nome" name="nome" th:value="${nome}"
@@ -58,7 +58,7 @@
 
         <div class="acoes">
             <button type="submit">Buscar</button>
-            <a class="limpar" th:href="@{/deputados}" th:if="${!filtro.vazio()}">Limpar filtros</a>
+            <a class="limpar" th:href="@{/parlamentares}" th:if="${!filtro.vazio()}">Limpar filtros</a>
         </div>
     </form>
 
@@ -82,7 +82,7 @@
 
     <ul class="lista">
         <li class="cartao" th:each="p : ${resultado.content}">
-            <a class="parlamentar" th:href="@{/deputados/{id}(id=${p.id})}">
+            <a class="parlamentar" th:href="@{/parlamentares/{id}(id=${p.id})}">
                 <img class="retrato" th:src="${p.urlFoto}" th:alt="|Retrato de ${p.nome}|"
                      th:if="${p.urlFoto != null}" loading="lazy" width="56" height="56">
                 <span>
@@ -105,7 +105,7 @@
 
     <nav class="paginacao" th:if="${resultado.totalPages > 1}" aria-label="Paginação">
         <a th:if="${!resultado.first}"
-           th:href="@{/deputados(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number - 1})}">
+           th:href="@{/parlamentares(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number - 1})}">
             ← Anterior
         </a>
         <span class="posicao">
@@ -113,7 +113,7 @@
             de <span th:text="${resultado.totalPages}">1</span>
         </span>
         <a th:if="${!resultado.last}"
-           th:href="@{/deputados(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number + 1})}">
+           th:href="@{/parlamentares(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number + 1})}">
             Próxima →
         </a>
     </nav>

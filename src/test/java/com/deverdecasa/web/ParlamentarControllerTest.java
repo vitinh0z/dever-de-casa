@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** As duas telas do site, exercitadas de ponta a ponta contra o banco. */
 @AutoConfigureMockMvc
-class DeputadoControllerTest extends TestePostgres {
+class ParlamentarControllerTest extends TestePostgres {
 
     @Autowired
     MockMvc mockMvc;
@@ -54,11 +54,41 @@ class DeputadoControllerTest extends TestePostgres {
                 "SELECT id FROM proposicao WHERE id_externo = '2642134'", Long.class);
         jdbc.update("INSERT INTO proposicao_autor (proposicao_id, parlamentar_id, proponente) VALUES (?, ?, TRUE)",
                 idProposicao, idDoParlamentar);
+
+        jdbc.update("""
+                INSERT INTO parlamentar (casa, id_externo, nome, sigla_uf, situacao, atualizado_em)
+                VALUES ('SENADO', '5672', 'Alan Rick', 'AC', 'Exercício', now())
+                """);
+    }
+
+    @Test
+    void buscaMisturaDeputadosESenadores() throws Exception {
+        mockMvc.perform(get("/parlamentares"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Acácio Favacho")))
+                .andExpect(content().string(containsString("Alan Rick")));
+    }
+
+    @Test
+    void filtroDeCasaSeparaAsDuasCasas() throws Exception {
+        mockMvc.perform(get("/parlamentares").param("casa", "SENADO"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Alan Rick")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Acácio Favacho"))));
+    }
+
+    /** O caminho antigo continua valendo e, sem casa escolhida, segue restrito à Câmara. */
+    @Test
+    void rotaDeputadosPermaneceNaCamara() throws Exception {
+        mockMvc.perform(get("/deputados"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Acácio Favacho")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Alan Rick"))));
     }
 
     @Test
     void buscaAceitaNomePartidoEStatusJuntos() throws Exception {
-        mockMvc.perform(get("/deputados")
+        mockMvc.perform(get("/parlamentares")
                         .param("nome", "favacho")
                         .param("partido", "MDB")
                         .param("aprovadas", "true"))
@@ -69,14 +99,14 @@ class DeputadoControllerTest extends TestePostgres {
 
     @Test
     void filtroQueNaoBateNaoTrazOParlamentar() throws Exception {
-        mockMvc.perform(get("/deputados").param("partido", "PT"))
+        mockMvc.perform(get("/parlamentares").param("partido", "PT"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Nenhum parlamentar encontrado")));
     }
 
     @Test
     void perfilMostraProjetosAutorados() throws Exception {
-        mockMvc.perform(get("/deputados/{id}", idDoParlamentar))
+        mockMvc.perform(get("/parlamentares/{id}", idDoParlamentar))
                 .andExpect(status().isOk())
                 .andExpect(view().name("perfil"))
                 .andExpect(content().string(containsString("PL 4916/2026")))
@@ -89,14 +119,14 @@ class DeputadoControllerTest extends TestePostgres {
      */
     @Test
     void perfilSemVotoNominalExplicaEmVezDeMostrarListaVazia() throws Exception {
-        mockMvc.perform(get("/deputados/{id}", idDoParlamentar))
+        mockMvc.perform(get("/parlamentares/{id}", idDoParlamentar))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Não há voto nominal registrado")));
     }
 
     @Test
     void perfilInexistenteDevolvePaginaAmigavelDe404() throws Exception {
-        mockMvc.perform(get("/deputados/{id}", 999_999L))
+        mockMvc.perform(get("/parlamentares/{id}", 999_999L))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name("erro"))
                 .andExpect(model().attributeExists("mensagem"))
