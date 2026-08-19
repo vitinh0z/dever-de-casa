@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: pagina(${titulo}, ~{::conteudo})}">
+<body>
+<div th:fragment="conteudo" th:remove="tag">
+    <div class="erro">
+        <h1 th:text="${titulo}">Não encontramos essa página</h1>
+        <p class="chamada" th:text="${mensagem}">Mensagem</p>
+        <p><a th:href="@{/deputados}">Voltar para a busca</a></p>
+    </div>
+</div>
+</body>
+</html>
