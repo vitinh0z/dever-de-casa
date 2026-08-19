@@ -38,3 +38,13 @@ deverdecasa:
     timeout: 30s
     # Teto de páginas por consulta: segura o tamanho de uma execução contra uma API pública.
     max-paginas: 20
+  sincronizacao:
+    habilitada: true
+    # Madrugada, quando as casas já publicaram o movimento do dia anterior.
+    cron: "0 0 4 * * *"
+    # 0 = todos os parlamentares da casa.
+    max-parlamentares: 0
+    max-proposicoes-por-autor: 50
+    dias-de-votacoes: 30
+    detalhar-proposicoes: true
+    ao-iniciar: false
