@@ -19,6 +19,15 @@ public class IntegracaoConfig {
         return construir(builder, properties.baseUrl(), properties.timeout());
     }
 
+    /**
+     * Cliente dos arquivos em bloco. O tempo de espera é maior porque são dezenas de megabytes por
+     * arquivo, e a leitura acontece enquanto o corpo ainda está chegando.
+     */
+    @Bean
+    RestClient arquivosCamaraRestClient(RestClient.Builder builder, CamaraApiProperties properties) {
+        return construir(builder, properties.arquivosUrl(), Duration.ofMinutes(5));
+    }
+
     @Bean
     RestClient senadoRestClient(RestClient.Builder builder, SenadoApiProperties properties) {
         return construir(builder, properties.baseUrl(), properties.timeout());
