@@ -1,10 +1,12 @@
+# Padrões de desenvolvimento. Produção sobrescreve o que for sensível em
+# application-prod.yml; ajustes pessoais vão em application-local.yml (fora do git).
 spring:
   application:
     name: dever-de-casa
   datasource:
-    url: jdbc:postgresql://localhost:5432/deverdecasa
-    username: deverdecasa
-    password: deverdecasa
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:deverdecasa}
+    username: ${POSTGRES_USER:deverdecasa}
+    password: ${POSTGRES_PASSWORD:deverdecasa}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -12,6 +14,42 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=1h
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+deverdecasa:
+  camara:
+    base-url: https://dadosabertos.camara.leg.br/api/v2
+    timeout: 30s
+    # Teto de páginas por consulta: segura o tamanho de uma execução contra uma API pública.
+    max-paginas: 20
+  senado:
+    base-url: https://legis.senado.leg.br/dadosabertos
+    timeout: 45s
+    # Janela de anos consultada em matérias e votações.
+    anos-de-historico: 2
+  sincronizacao:
+    habilitada: true
+    # Madrugada, quando as casas já publicaram o movimento do dia anterior.
+    cron: "0 0 4 * * *"
+    # 0 = todos os parlamentares da casa.
+    max-parlamentares: 0
+    max-proposicoes-por-autor: 50
+    dias-de-votacoes: 30
+    detalhar-proposicoes: true
+    ao-iniciar: false

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:fragment="pagina(titulo, conteudo)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="|${titulo} · dever de casa|">dever de casa</title>
+    <meta name="description"
+          content="O que deputados federais e senadores andaram fazendo com o mandato: projetos apresentados e votos registrados, a partir dos dados abertos das duas casas.">
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="cabecalho">
+    <div class="faixa">
+        <a class="marca" th:href="@{/}">
+            <span class="marca-nome">dever de casa</span>
+            <span class="marca-sub">o que fizeram com o mandato</span>
+        </a>
+        <nav aria-label="Navegação principal">
+            <a th:href="@{/parlamentares}">Parlamentares</a>
+        </nav>
+    </div>
+</header>
+
+<main id="conteudo" class="conteudo">
+    <div th:replace="${conteudo}">Conteúdo da página</div>
+</main>
+
+<footer class="rodape">
+    <div class="faixa">
+        <p>
+            Dados públicos da
+            <a href="https://dadosabertos.camara.leg.br" rel="noopener">Câmara dos Deputados</a>
+            e do
+            <a href="https://legis.senado.leg.br/dadosabertos" rel="noopener">Senado Federal</a>,
+            reorganizados sem juízo de valor sobre parlamentares, partidos ou propostas.
+        </p>
+        <p>
+            <a href="https://github.com/vitinh0z/dever-de-casa" rel="noopener">Código aberto no GitHub</a>
+        </p>
+    </div>
+</footer>
+</body>
+</html>

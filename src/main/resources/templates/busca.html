@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: pagina('Parlamentares', ~{::conteudo})}">
+<body>
+<div th:fragment="conteudo" th:remove="tag">
+
+    <h1>Quem você quer acompanhar?</h1>
+    <p class="chamada">
+        Procure pelo nome do seu deputado ou senador e veja quantos projetos ele apresentou.
+    </p>
+
+    <form class="busca cartao" method="get" th:action="@{/parlamentares}">
+        <div>
+            <label for="nome">Nome do parlamentar</label>
+            <input type="search" id="nome" name="nome" th:value="${nome}"
+                   placeholder="Digite parte do nome — acento e letra trocada não atrapalham"
+                   autocomplete="off">
+        </div>
+
+        <div class="filtros">
+            <div>
+                <label for="partido">Partido</label>
+                <select id="partido" name="partido">
+                    <option value="">Todos os partidos</option>
+                    <option th:each="sigla : ${partidos}"
+                            th:value="${sigla}"
+                            th:text="${sigla}"
+                            th:selected="${sigla == filtro.partido()}"></option>
+                </select>
+            </div>
+
+            <div>
+                <label for="aprovadas">Projetos contados</label>
+                <select id="aprovadas" name="aprovadas">
+                    <option value="" th:selected="${filtro.aprovadas() == null}">Todos os projetos</option>
+                    <option value="true" th:selected="${filtro.aprovadas() != null and filtro.aprovadas()}">
+                        Só os aprovados
+                    </option>
+                    <option value="false" th:selected="${filtro.aprovadas() != null and !filtro.aprovadas()}">
+                        Só os não aprovados
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="casa">Casa legislativa</label>
+                <select id="casa" name="casa">
+                    <option value="">Câmara e Senado</option>
+                    <option value="CAMARA" th:selected="${filtro.casaComoTexto() == 'CAMARA'}">
+                        Câmara dos Deputados
+                    </option>
+                    <option value="SENADO" th:selected="${filtro.casaComoTexto() == 'SENADO'}">
+                        Senado Federal
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="acoes">
+            <button type="submit">Buscar</button>
+            <a class="limpar" th:href="@{/parlamentares}" th:if="${!filtro.vazio()}">Limpar filtros</a>
+        </div>
+    </form>
+
+    <p class="contagem" th:if="${resultado.totalElements > 0}">
+        <span th:text="${resultado.totalElements}">0</span>
+        <span th:text="${resultado.totalElements == 1} ? 'parlamentar encontrado' : 'parlamentares encontrados'">
+            parlamentares encontrados
+        </span>
+    </p>
+
+    <div class="vazio" th:if="${resultado.totalElements == 0}">
+        <p th:if="${!filtro.vazio()}">
+            Nenhum parlamentar encontrado com esses filtros. Tente com menos letras ou sem o filtro
+            de partido.
+        </p>
+        <p th:if="${filtro.vazio()}">
+            Ainda não há parlamentares no banco. Rode a sincronização com as APIs das casas para
+            popular os dados.
+        </p>
+    </div>
+
+    <ul class="lista">
+        <li class="cartao" th:each="p : ${resultado.content}">
+            <a class="parlamentar" th:href="@{/parlamentares/{id}(id=${p.id})}">
+                <img class="retrato" th:src="${p.urlFoto}" th:alt="|Retrato de ${p.nome}|"
+                     th:if="${p.urlFoto != null}" loading="lazy" width="56" height="56">
+                <span>
+                    <span class="nome" th:text="${p.nome}">Nome</span>
+                    <span class="detalhe">
+                        <span th:text="${p.tratamento()}">Deputado(a)</span>
+                        <span th:if="${p.siglaPartido != null}" th:text="|· ${p.siglaPartido}|">· PARTIDO</span>
+                        <span th:if="${p.siglaUf != null}" th:text="|· ${p.siglaUf}|">· UF</span>
+                    </span>
+                </span>
+                <span class="contador">
+                    <strong th:text="${p.qtdProposicoes}">0</strong>
+                    <span th:if="${filtro.aprovadas() == null}">projetos</span>
+                    <span th:if="${filtro.aprovadas() != null and filtro.aprovadas()}">aprovados</span>
+                    <span th:if="${filtro.aprovadas() != null and !filtro.aprovadas()}">não aprovados</span>
+                </span>
+            </a>
+        </li>
+    </ul>
+
+    <nav class="paginacao" th:if="${resultado.totalPages > 1}" aria-label="Paginação">
+        <a th:if="${!resultado.first}"
+           th:href="@{/parlamentares(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number - 1})}">
+            ← Anterior
+        </a>
+        <span class="posicao">
+            Página <span th:text="${resultado.number + 1}">1</span>
+            de <span th:text="${resultado.totalPages}">1</span>
+        </span>
+        <a th:if="${!resultado.last}"
+           th:href="@{/parlamentares(nome=${nome}, partido=${filtro.partido()}, casa=${filtro.casaComoTexto()}, aprovadas=${filtro.aprovadas()}, pagina=${resultado.number + 1})}">
+            Próxima →
+        </a>
+    </nav>
+
+</div>
+</body>
+</html>
