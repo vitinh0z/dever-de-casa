@@ -2,7 +2,7 @@ spring:
   application:
     name: dever-de-casa
   datasource:
-    url: jdbc:postgresql://localhost:5432/deverdecasa
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/deverdecasa
     username: deverdecasa
     password: deverdecasa
   jpa:
@@ -12,6 +12,20 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=1h
 
 server:
   port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
