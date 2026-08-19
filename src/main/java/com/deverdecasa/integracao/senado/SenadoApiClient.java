@@ -49,10 +49,7 @@ public class SenadoApiClient {
             if (resposta == null) {
                 return List.of();
             }
-            return resposta.senadores().stream()
-                    .map(SenadoDtos.Parlamentar::identificacaoParlamentar)
-                    .filter(java.util.Objects::nonNull)
-                    .toList();
+            return resposta.identificacoes();
         } catch (RestClientException e) {
             log.warn("Falha ao listar senadores: {}", e.getMessage());
             return List.of();

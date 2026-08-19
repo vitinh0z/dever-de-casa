@@ -24,6 +24,10 @@ public interface ParlamentarRepository extends JpaRepository<Parlamentar, Long> 
      * <p>A contagem de proposições respeita o filtro de aprovação: com {@code :aprovada}
      * preenchido, quem não tem nenhuma proposição naquele estado aparece com zero em vez de
      * sumir da lista, porque a pergunta da tela é sobre o parlamentar, não sobre a proposição.
+     *
+     * <p>A contagem é de {@code pr.id}, e não da coluna de autoria: quando o filtro descarta a
+     * proposição, o LEFT JOIN deixa {@code pr} nulo, mas a linha de autoria continua lá — contar
+     * por ela devolveria o total de sempre, com o rótulo trocado para "aprovados".
      */
     @Query(value = """
             SELECT p.id                AS id,
@@ -32,7 +36,7 @@ public interface ParlamentarRepository extends JpaRepository<Parlamentar, Long> 
                    p.sigla_uf          AS siglaUf,
                    pt.sigla            AS siglaPartido,
                    p.url_foto          AS urlFoto,
-                   COUNT(DISTINCT pa.proposicao_id) AS qtdProposicoes
+                   COUNT(DISTINCT pr.id) AS qtdProposicoes
             FROM parlamentar p
                      LEFT JOIN partido pt ON pt.id = p.partido_id
                      LEFT JOIN proposicao_autor pa ON pa.parlamentar_id = p.id

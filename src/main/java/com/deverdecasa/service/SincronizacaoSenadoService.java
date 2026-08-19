@@ -108,7 +108,7 @@ public class SincronizacaoSenadoService {
                 .findByCasaAndIdExterno(Casa.SENADO, dto.codigoParlamentar())
                 .orElse(null);
         Parlamentar parlamentar = senadoMapper.aplicar(existente, dto);
-        parlamentar.setPartido(resolverPartido(dto.siglaPartidoParlamentar()));
+        parlamentar.setPartido(resolverPartido(dto.siglaPartido()));
         Parlamentar salvo = parlamentarRepository.save(parlamentar);
 
         return new ResultadoSincronizacao(1, gravarMateriasDe(salvo), 0, 0, 0);

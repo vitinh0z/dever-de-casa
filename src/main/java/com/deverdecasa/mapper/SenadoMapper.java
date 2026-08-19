@@ -26,10 +26,10 @@ public interface SenadoMapper {
                 ? destino
                 : new Parlamentar(Casa.SENADO, origem.codigoParlamentar(), origem.nomeParlamentar());
         parlamentar.setNome(origem.nomeParlamentar());
-        parlamentar.setNomeCivil(origem.nomeCompletoParlamentar());
-        parlamentar.setSiglaUf(origem.ufParlamentar());
-        parlamentar.setUrlFoto(origem.urlFotoParlamentar());
-        parlamentar.setEmail(origem.emailParlamentar());
+        parlamentar.setNomeCivil(origem.nomeCompleto());
+        parlamentar.setSiglaUf(origem.uf());
+        parlamentar.setUrlFoto(origem.urlFoto());
+        parlamentar.setEmail(origem.email());
         parlamentar.setSituacao("Exercício");
         parlamentar.setAtualizadoEm(Instant.now());
         return parlamentar;

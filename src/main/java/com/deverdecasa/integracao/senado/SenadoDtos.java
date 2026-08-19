@@ -1,17 +1,21 @@
 package com.deverdecasa.integracao.senado;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Respostas brutas da API de Dados Abertos do Senado Federal.
  *
  * <p>O Senado publica um modelo próprio, herdado de XML: envelopes aninhados com nomes em
- * CamelCase para a lista de senadores, e JSON plano nos serviços mais novos de processo e
- * votação. Os dois formatos ficam isolados aqui, para que o domínio não precise conhecer nenhum
- * deles nem se pareça com um ou com outro.
+ * PascalCase para a lista de senadores, e JSON plano nos serviços mais novos de processo e
+ * votação. Os dois formatos ficam isolados aqui, para que o domínio não conheça nenhum deles.
+ *
+ * <p>Os nomes em PascalCase são declarados um a um com {@code @JsonProperty}, em vez de uma
+ * estratégia de nomenclatura no tipo: a estratégia é instanciada pelo Spring como bean na hora de
+ * desserializar e, quando isso falha, o erro aparece só em execução, como uma lista de senadores
+ * vazia — o mapeamento explícito não tem esse ponto de falha.
  */
 public final class SenadoDtos {
 
@@ -21,42 +25,49 @@ public final class SenadoDtos {
     // --- lista de senadores em exercício (envelope no formato antigo) -------------------------
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-    public record ListaSenadoresResponse(ListaParlamentarEmExercicio listaParlamentarEmExercicio) {
+    public record ListaSenadoresResponse(
+            @JsonProperty("ListaParlamentarEmExercicio") ListaParlamentarEmExercicio lista) {
 
         public List<Parlamentar> senadores() {
-            if (listaParlamentarEmExercicio == null || listaParlamentarEmExercicio.parlamentares() == null) {
+            if (lista == null || lista.parlamentares() == null) {
                 return List.of();
             }
-            List<Parlamentar> lista = listaParlamentarEmExercicio.parlamentares().parlamentar();
-            return lista == null ? List.of() : lista;
+            List<Parlamentar> parlamentares = lista.parlamentares().parlamentar();
+            return parlamentares == null ? List.of() : parlamentares;
+        }
+
+        /** Identificações já desembrulhadas dos dois níveis de envelope. */
+        public List<IdentificacaoParlamentar> identificacoes() {
+            return senadores().stream()
+                    .map(Parlamentar::identificacao)
+                    .filter(Objects::nonNull)
+                    .toList();
         }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-    public record ListaParlamentarEmExercicio(Parlamentares parlamentares) {
+    public record ListaParlamentarEmExercicio(
+            @JsonProperty("Parlamentares") Parlamentares parlamentares) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-    public record Parlamentares(List<Parlamentar> parlamentar) {
+    public record Parlamentares(@JsonProperty("Parlamentar") List<Parlamentar> parlamentar) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-    public record Parlamentar(IdentificacaoParlamentar identificacaoParlamentar) {
+    public record Parlamentar(
+            @JsonProperty("IdentificacaoParlamentar") IdentificacaoParlamentar identificacao) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy.class)
-    public record IdentificacaoParlamentar(String codigoParlamentar,
-                                           String nomeParlamentar,
-                                           String nomeCompletoParlamentar,
-                                           String siglaPartidoParlamentar,
-                                           String ufParlamentar,
-                                           String urlFotoParlamentar,
-                                           String emailParlamentar) {
+    public record IdentificacaoParlamentar(
+            @JsonProperty("CodigoParlamentar") String codigoParlamentar,
+            @JsonProperty("NomeParlamentar") String nomeParlamentar,
+            @JsonProperty("NomeCompletoParlamentar") String nomeCompleto,
+            @JsonProperty("SiglaPartidoParlamentar") String siglaPartido,
+            @JsonProperty("UfParlamentar") String uf,
+            @JsonProperty("UrlFotoParlamentar") String urlFoto,
+            @JsonProperty("EmailParlamentar") String email) {
     }
 
     // --- processo legislativo (serviço que substituiu o de autorias) --------------------------
@@ -65,7 +76,7 @@ public final class SenadoDtos {
      * Matéria assinada por um senador.
      *
      * <p>{@code siglaTipoDeliberacao} é o campo que diz se a proposta foi adiante — chega como
-     * {@code APROVADA_NO_PLENARIO} e afins —, o que evita ter que interpretar o texto livre de
+     * {@code APROVADA_NO_PLENARIO} e afins —, o que evita interpretar o texto livre de
      * {@code situacaoAtual}.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -120,7 +131,7 @@ public final class SenadoDtos {
     public record VotoApiResponse(Long codigoParlamentar,
                                   String nomeParlamentar,
                                   String siglaPartidoParlamentar,
-                                  String siglaUFParlamentar,
+                                  @JsonProperty("siglaUFParlamentar") String siglaUf,
                                   String siglaVotoParlamentar) {
     }
 }

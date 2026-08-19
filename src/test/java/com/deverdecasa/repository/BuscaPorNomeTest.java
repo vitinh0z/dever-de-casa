@@ -29,6 +29,8 @@ class BuscaPorNomeTest extends TestePostgres {
 
     @BeforeEach
     void semear() {
+        jdbc.update("DELETE FROM proposicao_autor");
+        jdbc.update("DELETE FROM proposicao");
         jdbc.update("DELETE FROM parlamentar");
         jdbc.update("""
                 INSERT INTO parlamentar (casa, id_externo, nome, sigla_uf, atualizado_em) VALUES
@@ -72,6 +74,57 @@ class BuscaPorNomeTest extends TestePostgres {
         assertThat(resultado.getContent())
                 .extracting(ParlamentarResumo::getNome)
                 .containsExactly("Alan Rick");
+    }
+
+    /**
+     * O filtro de aprovação precisa mudar o número exibido, não só o rótulo. Contar pela linha de
+     * autoria em vez da proposição devolveria o total de sempre com a legenda trocada para
+     * "aprovados", que é pior do que não ter filtro nenhum: afirmaria algo falso sobre o mandato.
+     */
+    @Test
+    void contagemPorAprovacaoNaoIncluiProposicaoDeOutroEstado() {
+        Long idParlamentar = jdbc.queryForObject(
+                "SELECT id FROM parlamentar WHERE id_externo = '204379'", Long.class);
+        criarProposicao("aprovada-1", true, idParlamentar);
+        criarProposicao("reprovada-1", false, idParlamentar);
+        criarProposicao("reprovada-2", false, idParlamentar);
+        criarProposicao("sem-situacao", null, idParlamentar);
+
+        assertThat(qtdDe(null, idParlamentar)).as("sem filtro conta tudo").isEqualTo(4);
+        assertThat(qtdDe(true, idParlamentar)).as("só as aprovadas").isEqualTo(1);
+        assertThat(qtdDe(false, idParlamentar)).as("só as não aprovadas").isEqualTo(2);
+    }
+
+    @Test
+    void parlamentarSemProposicaoNoEstadoFiltradoApareceComZero() {
+        Long idParlamentar = jdbc.queryForObject(
+                "SELECT id FROM parlamentar WHERE id_externo = '204380'", Long.class);
+        criarProposicao("so-reprovada", false, idParlamentar);
+
+        var resultado = repository.buscar("guima", null, null, true, PageRequest.of(0, 10));
+
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().getFirst().getQtdProposicoes()).isZero();
+    }
+
+    private long qtdDe(Boolean aprovadas, Long idParlamentar) {
+        return repository.buscar("favacho", null, null, aprovadas, PageRequest.of(0, 10))
+                .getContent().stream()
+                .filter(r -> r.getId().equals(idParlamentar))
+                .findFirst()
+                .orElseThrow()
+                .getQtdProposicoes();
+    }
+
+    private void criarProposicao(String idExterno, Boolean aprovada, Long idParlamentar) {
+        jdbc.update("""
+                INSERT INTO proposicao (casa, id_externo, sigla_tipo, numero, ano, aprovada, atualizado_em)
+                VALUES ('CAMARA', ?, 'PL', 1, 2026, ?, now())
+                """, idExterno, aprovada);
+        Long idProposicao = jdbc.queryForObject(
+                "SELECT id FROM proposicao WHERE id_externo = ?", Long.class, idExterno);
+        jdbc.update("INSERT INTO proposicao_autor (proposicao_id, parlamentar_id, proponente) VALUES (?, ?, TRUE)",
+                idProposicao, idParlamentar);
     }
 
     @Test
