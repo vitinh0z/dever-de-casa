@@ -80,10 +80,16 @@ public class SincronizacaoSenadoService {
 
     public ResultadoSincronizacao sincronizar() {
         log.info("Sincronizando dados do Senado Federal");
-        return sincronizarSenadores().mais(sincronizarVotacoes());
+        return sincronizarSenadores(true).mais(sincronizarVotacoes());
     }
 
-    private ResultadoSincronizacao sincronizarSenadores() {
+    /** Só quem são os senadores, sem as matérias que assinaram. */
+    public ResultadoSincronizacao sincronizarParlamentares() {
+        log.info("Sincronizando parlamentares do Senado Federal");
+        return sincronizarSenadores(false);
+    }
+
+    private ResultadoSincronizacao sincronizarSenadores(boolean comMaterias) {
         List<IdentificacaoParlamentar> senadores = api.listarSenadores();
         if (!properties.semLimiteDeParlamentares() && senadores.size() > properties.maxParlamentares()) {
             log.info("Limitando a {} de {} senadores nesta execução", properties.maxParlamentares(), senadores.size());
@@ -93,7 +99,7 @@ public class SincronizacaoSenadoService {
         ResultadoSincronizacao total = ResultadoSincronizacao.vazio();
         for (IdentificacaoParlamentar senador : senadores) {
             try {
-                total = total.mais(transacao.execute(status -> gravarSenador(senador)));
+                total = total.mais(transacao.execute(status -> gravarSenador(senador, comMaterias)));
             } catch (RuntimeException e) {
                 log.warn("Falha ao sincronizar o senador {} ({}): {}",
                         senador.nomeParlamentar(), senador.codigoParlamentar(), e.toString());
@@ -103,7 +109,7 @@ public class SincronizacaoSenadoService {
         return total;
     }
 
-    private ResultadoSincronizacao gravarSenador(IdentificacaoParlamentar dto) {
+    private ResultadoSincronizacao gravarSenador(IdentificacaoParlamentar dto, boolean comMaterias) {
         Parlamentar existente = parlamentarRepository
                 .findByCasaAndIdExterno(Casa.SENADO, dto.codigoParlamentar())
                 .orElse(null);
@@ -111,7 +117,8 @@ public class SincronizacaoSenadoService {
         parlamentar.setPartido(resolverPartido(dto.siglaPartido()));
         Parlamentar salvo = parlamentarRepository.save(parlamentar);
 
-        return new ResultadoSincronizacao(1, gravarMateriasDe(salvo), 0, 0, 0);
+        int materias = comMaterias ? gravarMateriasDe(salvo) : 0;
+        return new ResultadoSincronizacao(1, materias, 0, 0, 0);
     }
 
     private int gravarMateriasDe(Parlamentar autor) {

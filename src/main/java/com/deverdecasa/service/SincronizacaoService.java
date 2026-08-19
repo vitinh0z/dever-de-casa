@@ -39,6 +39,12 @@ public class SincronizacaoService {
         return resultado;
     }
 
+    /** Popula apenas os parlamentares das duas casas, passo que antecede a carga em massa. */
+    public ResultadoSincronizacao sincronizarParlamentares() {
+        return executar("Câmara", camara::sincronizarParlamentares)
+                .mais(executar("Senado", senado::sincronizarParlamentares));
+    }
+
     private ResultadoSincronizacao executar(String casa, java.util.function.Supplier<ResultadoSincronizacao> tarefa) {
         try {
             return tarefa.get();

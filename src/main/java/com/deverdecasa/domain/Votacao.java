@@ -62,6 +62,23 @@ public class Votacao {
     @JoinColumn(name = "proposicao_id", foreignKey = @ForeignKey(name = "fk_votacao_proposicao"))
     private Proposicao proposicao;
 
+    /**
+     * Placar como a casa o apurou. Guardado ao lado dos votos individuais porque a soma dos
+     * registros nem sempre bate com o total oficial, e o número que vale é o da casa.
+     */
+    @Column(name = "votos_sim")
+    private Integer votosSim;
+
+    @Column(name = "votos_nao")
+    private Integer votosNao;
+
+    @Column(name = "votos_outros")
+    private Integer votosOutros;
+
+    /** Como a casa nomeia a proposta decidida nesta votação, por exemplo "PL 11/2003". */
+    @Column(name = "titulo_proposicao", length = 200)
+    private String tituloProposicao;
+
     protected Votacao() {
     }
 
@@ -144,5 +161,49 @@ public class Votacao {
 
     public void setProposicao(Proposicao proposicao) {
         this.proposicao = proposicao;
+    }
+
+    public Integer getVotosSim() {
+        return votosSim;
+    }
+
+    public void setVotosSim(Integer votosSim) {
+        this.votosSim = votosSim;
+    }
+
+    public Integer getVotosNao() {
+        return votosNao;
+    }
+
+    public void setVotosNao(Integer votosNao) {
+        this.votosNao = votosNao;
+    }
+
+    public Integer getVotosOutros() {
+        return votosOutros;
+    }
+
+    public void setVotosOutros(Integer votosOutros) {
+        this.votosOutros = votosOutros;
+    }
+
+    public String getTituloProposicao() {
+        return tituloProposicao;
+    }
+
+    public void setTituloProposicao(String tituloProposicao) {
+        this.tituloProposicao = tituloProposicao;
+    }
+
+    /** Total apurado pela casa; nulo quando ela não publicou placar. */
+    public Integer getTotalVotos() {
+        if (votosSim == null && votosNao == null && votosOutros == null) {
+            return null;
+        }
+        return zeroSeNulo(votosSim) + zeroSeNulo(votosNao) + zeroSeNulo(votosOutros);
+    }
+
+    private static int zeroSeNulo(Integer valor) {
+        return valor == null ? 0 : valor;
     }
 }
