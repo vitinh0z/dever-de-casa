@@ -28,6 +28,24 @@ A meta final é simples: qualquer pessoa abre o site, procura pelo nome do seu d
 
 APIs de dados abertos da Câmara dos Deputados e do Senado Federal, mantidas pelas próprias casas legislativas. O escopo inicial é a Câmara, por ter uma API mais completa e unificada; o Senado entra numa fase posterior, já que segue um modelo de dados próprio.
 
+## Como rodar
+
+Você precisa de JDK 21, Maven 3.9+ e Docker.
+
+```bash
+mvn spring-boot:run
+```
+
+O Postgres sobe junto pelo `docker-compose.yml`, já com a extensão `pg_trgm` habilitada — não é preciso subir nada à parte. A aplicação fica em `http://localhost:8080`.
+
+Se a porta 5432 já estiver ocupada na sua máquina, crie um `.env` na raiz com `POSTGRES_PORT=5433` (ou outra livre); o resto se ajusta sozinho.
+
+Os testes usam um Postgres descartável via Testcontainers, então também pedem Docker:
+
+```bash
+mvn verify
+```
+
 ## Contribuindo
 
 Quer ajudar? O fluxo de contribuição está descrito em [CONTRIBUTING.md](CONTRIBUTING.md), e o trabalho em andamento está organizado nas [issues do repositório](https://github.com/vitinh0z/dever-de-casa/issues).

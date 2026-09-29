@@ -1,0 +1,23 @@
+# Nada de credencial aqui: tudo vem de variável de ambiente e o boot falha
+# cedo se alguma faltar, em vez de subir apontando para o banco errado.
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  docker:
+    compose:
+      enabled: false
+  thymeleaf:
+    cache: true
+
+logging:
+  level:
+    root: INFO
+    com.deverdecasa: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

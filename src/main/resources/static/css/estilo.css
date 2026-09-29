@@ -1,0 +1,482 @@
+/*
+ * Paleta: fundo branco, azul institucional para estrutura e navegação, verde para o que foi
+ * aprovado. Mobile-first, sem framework: a página precisa abrir rápido em celular ruim, que é
+ * onde a maior parte das pessoas vai procurar o nome do seu deputado.
+ *
+ * Cores conferidas para contraste AA sobre branco (>= 4.5:1 em texto normal).
+ */
+
+:root {
+    --azul: #123a6b;
+    --azul-claro: #e8eff8;
+    --azul-borda: #c3d5ec;
+    --verde: #146c43;
+    --verde-claro: #e3f3ea;
+    --vermelho: #9b2226;
+    --vermelho-claro: #fbeaea;
+    --cinza-texto: #4a5568;
+    --cinza-borda: #dfe3e8;
+    --branco: #ffffff;
+    --fundo: #f7f9fc;
+
+    --raio: 10px;
+    --sombra: 0 1px 3px rgba(18, 58, 107, .12);
+    --largura: 68rem;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--fundo);
+    color: #1a202c;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+a {
+    color: var(--azul);
+}
+
+.pular {
+    position: absolute;
+    left: -999px;
+}
+
+.pular:focus {
+    left: 1rem;
+    top: 1rem;
+    z-index: 10;
+    background: var(--branco);
+    padding: .6rem 1rem;
+    border-radius: var(--raio);
+}
+
+.faixa {
+    max-width: var(--largura);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Cabeçalho e rodapé ------------------------------------------------------ */
+
+.cabecalho {
+    background: var(--azul);
+    color: var(--branco);
+    border-bottom: 4px solid var(--verde);
+}
+
+.cabecalho .faixa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding-top: .9rem;
+    padding-bottom: .9rem;
+}
+
+.marca {
+    color: var(--branco);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.marca-nome {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+
+.marca-sub {
+    font-size: .8rem;
+    color: #b8cbe4;
+}
+
+.cabecalho nav a {
+    color: var(--branco);
+    text-decoration: none;
+    font-weight: 600;
+    padding: .4rem .7rem;
+    border-radius: var(--raio);
+}
+
+.cabecalho nav a:hover,
+.cabecalho nav a:focus {
+    background: rgba(255, 255, 255, .14);
+}
+
+.conteudo {
+    max-width: var(--largura);
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.rodape {
+    border-top: 1px solid var(--cinza-borda);
+    background: var(--branco);
+    color: var(--cinza-texto);
+    font-size: .85rem;
+    padding: 1.2rem 0;
+}
+
+.rodape p {
+    margin: .3rem 0;
+}
+
+/* Blocos ------------------------------------------------------------------ */
+
+.cartao {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 1rem;
+}
+
+h1 {
+    font-size: 1.6rem;
+    line-height: 1.25;
+    margin: 0 0 .4rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+    margin: 2rem 0 .8rem;
+}
+
+.chamada {
+    color: var(--cinza-texto);
+    margin: 0 0 1.2rem;
+}
+
+/* Formulário de busca ------------------------------------------------------ */
+
+.busca {
+    display: grid;
+    gap: .8rem;
+    margin-bottom: 1.5rem;
+}
+
+.busca label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--cinza-texto);
+    margin-bottom: .25rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.busca input,
+.busca select {
+    width: 100%;
+    padding: .65rem .75rem;
+    border: 1px solid var(--azul-borda);
+    border-radius: var(--raio);
+    font-size: 1rem;
+    background: var(--branco);
+    color: inherit;
+}
+
+.busca input:focus,
+.busca select:focus {
+    outline: 3px solid rgba(18, 58, 107, .25);
+    border-color: var(--azul);
+}
+
+.filtros {
+    display: grid;
+    gap: .8rem;
+}
+
+.acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    align-items: center;
+}
+
+button {
+    background: var(--azul);
+    color: var(--branco);
+    border: 0;
+    border-radius: var(--raio);
+    padding: .7rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+button:hover,
+button:focus {
+    background: #0d2b50;
+}
+
+.limpar {
+    color: var(--azul);
+    font-weight: 600;
+}
+
+/* Lista de parlamentares --------------------------------------------------- */
+
+.contagem {
+    color: var(--cinza-texto);
+    font-size: .9rem;
+    margin: 0 0 .8rem;
+}
+
+.lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .8rem;
+}
+
+.parlamentar {
+    display: flex;
+    gap: .9rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+}
+
+.parlamentar:hover .nome,
+.parlamentar:focus .nome {
+    text-decoration: underline;
+}
+
+.retrato {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--azul-claro);
+    flex-shrink: 0;
+    border: 2px solid var(--azul-borda);
+}
+
+.parlamentar .nome {
+    font-weight: 700;
+    color: var(--azul);
+    display: block;
+}
+
+.parlamentar .detalhe {
+    color: var(--cinza-texto);
+    font-size: .88rem;
+}
+
+.contador {
+    margin-left: auto;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.contador strong {
+    display: block;
+    font-size: 1.35rem;
+    color: var(--verde);
+    line-height: 1.1;
+}
+
+.contador span {
+    font-size: .72rem;
+    color: var(--cinza-texto);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+/* Etiquetas ---------------------------------------------------------------- */
+
+.etiqueta {
+    display: inline-block;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.etiqueta-aprovada {
+    background: var(--verde-claro);
+    color: var(--verde);
+    border-color: #b7dfc7;
+}
+
+.etiqueta-nao-aprovada {
+    background: var(--vermelho-claro);
+    color: var(--vermelho);
+    border-color: #f0c9c9;
+}
+
+.etiqueta-neutra {
+    background: var(--azul-claro);
+    color: var(--azul);
+    border-color: var(--azul-borda);
+}
+
+/* Perfil ------------------------------------------------------------------- */
+
+.perfil-topo {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.perfil-topo .retrato {
+    width: 88px;
+    height: 88px;
+}
+
+.numeros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: .8rem;
+    margin: 1.2rem 0;
+}
+
+.numero strong {
+    display: block;
+    font-size: 1.6rem;
+    color: var(--azul);
+}
+
+.numero span {
+    font-size: .78rem;
+    color: var(--cinza-texto);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.itens {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .7rem;
+}
+
+.item {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-left: 4px solid var(--azul-borda);
+    border-radius: var(--raio);
+    padding: .8rem 1rem;
+}
+
+.item-titulo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.item-ementa {
+    color: var(--cinza-texto);
+    font-size: .92rem;
+    margin: .3rem 0 0;
+}
+
+.item-meta {
+    color: var(--cinza-texto);
+    font-size: .82rem;
+    margin-top: .35rem;
+}
+
+.item.voto-sim {
+    border-left-color: var(--verde);
+}
+
+.item.voto-nao {
+    border-left-color: var(--vermelho);
+}
+
+.item.voto-outro {
+    border-left-color: #b0771f;
+}
+
+.item.simbolica {
+    border-left-color: #7a8698;
+    border-style: dashed;
+}
+
+.aviso {
+    background: var(--azul-claro);
+    border: 1px solid var(--azul-borda);
+    border-radius: var(--raio);
+    padding: .9rem 1rem;
+    color: #23405f;
+    font-size: .92rem;
+}
+
+.vazio {
+    color: var(--cinza-texto);
+    background: var(--branco);
+    border: 1px dashed var(--cinza-borda);
+    border-radius: var(--raio);
+    padding: 1.2rem;
+    text-align: center;
+}
+
+/* Paginação ---------------------------------------------------------------- */
+
+.paginacao {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.paginacao a {
+    background: var(--branco);
+    border: 1px solid var(--azul-borda);
+    border-radius: var(--raio);
+    padding: .5rem 1rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.paginacao .posicao {
+    color: var(--cinza-texto);
+    font-size: .9rem;
+}
+
+/* Erro --------------------------------------------------------------------- */
+
+.erro {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.erro h1 {
+    font-size: 1.5rem;
+}
+
+/* Telas maiores ------------------------------------------------------------ */
+
+@media (min-width: 40rem) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .filtros {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: end;
+    }
+
+    .lista {
+        gap: .6rem;
+    }
+}
