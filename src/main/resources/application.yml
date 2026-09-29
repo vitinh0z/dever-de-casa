@@ -38,6 +38,9 @@ deverdecasa:
     timeout: 30s
     # Teto de páginas por consulta: segura o tamanho de uma execução contra uma API pública.
     max-paginas: 20
+    # Arquivos publicados em bloco, usados na carga inicial (--importar-massa).
+    arquivos-url: https://dadosabertos.camara.leg.br/arquivos
+    anos-de-importacao: 2
   senado:
     base-url: https://legis.senado.leg.br/dadosabertos
     timeout: 45s

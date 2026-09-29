@@ -85,10 +85,19 @@ public class SincronizacaoCamaraService {
 
     public ResultadoSincronizacao sincronizar() {
         log.info("Sincronizando dados da Câmara dos Deputados");
-        return sincronizarDeputados().mais(sincronizarVotacoes());
+        return sincronizarDeputados(true).mais(sincronizarVotacoes());
     }
 
-    private ResultadoSincronizacao sincronizarDeputados() {
+    /**
+     * Só quem são os deputados, sem o que assinaram. É o passo que precede a carga em massa: as
+     * autorias e os votos dos arquivos só entram quando o parlamentar já existe no banco.
+     */
+    public ResultadoSincronizacao sincronizarParlamentares() {
+        log.info("Sincronizando parlamentares da Câmara dos Deputados");
+        return sincronizarDeputados(false);
+    }
+
+    private ResultadoSincronizacao sincronizarDeputados(boolean comProposicoes) {
         List<DeputadoApiResponse> deputados = api.listarDeputados();
         if (!properties.semLimiteDeParlamentares() && deputados.size() > properties.maxParlamentares()) {
             log.info("Limitando a {} de {} deputados nesta execução", properties.maxParlamentares(), deputados.size());
@@ -98,7 +107,7 @@ public class SincronizacaoCamaraService {
         ResultadoSincronizacao total = ResultadoSincronizacao.vazio();
         for (DeputadoApiResponse deputado : deputados) {
             try {
-                total = total.mais(transacao.execute(status -> gravarDeputado(deputado)));
+                total = total.mais(transacao.execute(status -> gravarDeputado(deputado, comProposicoes)));
             } catch (RuntimeException e) {
                 log.warn("Falha ao sincronizar o deputado {} ({}): {}", deputado.nome(), deputado.id(), e.toString());
                 total = total.mais(new ResultadoSincronizacao(0, 0, 0, 0, 1));
@@ -107,7 +116,7 @@ public class SincronizacaoCamaraService {
         return total;
     }
 
-    private ResultadoSincronizacao gravarDeputado(DeputadoApiResponse dto) {
+    private ResultadoSincronizacao gravarDeputado(DeputadoApiResponse dto, boolean comProposicoes) {
         String idExterno = String.valueOf(dto.id());
         Parlamentar existente = parlamentarRepository.findByCasaAndIdExterno(Casa.CAMARA, idExterno).orElse(null);
         Parlamentar parlamentar = parlamentarMapper.aplicarDaCamara(existente, dto);
@@ -116,7 +125,8 @@ public class SincronizacaoCamaraService {
                 .ifPresent(detalhe -> parlamentarMapper.aplicarDetalheDaCamara(parlamentar, detalhe));
         Parlamentar salvo = parlamentarRepository.save(parlamentar);
 
-        return new ResultadoSincronizacao(1, gravarProposicoesDe(salvo), 0, 0, 0);
+        int proposicoes = comProposicoes ? gravarProposicoesDe(salvo) : 0;
+        return new ResultadoSincronizacao(1, proposicoes, 0, 0, 0);
     }
 
     private int gravarProposicoesDe(Parlamentar autor) {

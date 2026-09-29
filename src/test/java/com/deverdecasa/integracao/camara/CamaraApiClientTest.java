@@ -28,7 +28,7 @@ class CamaraApiClientTest {
         RestClient.Builder builder = RestClient.builder().baseUrl(BASE);
         servidor = MockRestServiceServer.bindTo(builder).build();
         client = new CamaraApiClient(builder.build(),
-                new CamaraApiProperties(BASE, Duration.ofSeconds(5), 20));
+                new CamaraApiProperties(BASE, Duration.ofSeconds(5), 20, BASE, 1));
     }
 
     @Test
